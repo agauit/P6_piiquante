@@ -29,13 +29,18 @@ exports.getOneSauce = (req, res, next) => {
 }
 
 exports.modifySauce = (req, res, next) => {
-    const saucesObject = req.file ?
-        {
+    let sauceObject;
+    if (req.file) {
+        //todo supprimer l'ancien fichier
+        sauceObject =  {
             ...JSON.parse(req.body.sauce),
             imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
-        } : { ...req.body };
-    Sauces.updateOne({ _id: req.params.id }, { ...saucesObject, _id: req.params.id })
-        .then(() => res.status(200).json({ message: 'Objet modifié !'}))
+        };
+    } else {
+        sauceObject = { ...req.body };
+    }
+    Sauces.updateOne({ _id: req.params.id }, { ...sauceObject, _id: req.params.id })
+        .then(() => res.status(200).json({ message: 'Sauce modifiée' }))
         .catch(error => res.status(400).json({ error }));
 };
 
