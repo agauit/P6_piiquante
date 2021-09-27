@@ -121,54 +121,63 @@ exports.getAllSauces = (req, res, next) => {
 exports.userLike = (req, res, next) => {
     Sauces.findOne({ _id: req.params.id})
         .then(sauce => {
-            let like = req.body.likes;
+            let like = req.body.like;
             let dislikes = req.body.dislikes;
             const sauceId = req.params.id;
             const userId = req.body.userId;
 
             switch (like) {
-                case  req.body.likes === 1 :
+                case 1 :
+                    console.log("like");
                     Sauces.updateOne({
-                        _id : sauceId }, {
-                        $push : {usersLiked : userId},
-                        $inc : {like : like++}
+                        _id: sauceId
+                    }, {
+                        $push: {usersLiked: userId},
+                        $inc: {like: like++}
+                    })
                         .then(() => res.status(200).json({
                             message: 'le client a aimé !'
                         }))
-                            .catch((error) => res.status(400).json({
-                                error
-                            }))
+                        .catch((error) => res.status(400).json({
+                            error
+                        }))
 
-            })
+
                     break;
-                case req.body.likes === -1 :
+                case -1 :
+                    console.log("dislike");
                     Sauces.updateOne({
-                        _id : sauceId,
-                        $push : {usersDisliked : userId},
-                        $inc : {dislikes :  dislikes++}
-                            .then(() => res.status(200).json({
-                                message: 'le client a pas aimé !'
-                            }))
-                            .catch((error) => res.status(400).json({
-                                error
-                            }))
+                        _id: sauceId,
+                        $push: {usersDisliked: userId},
+                        $inc: {dislikes: dislikes++}
                     })
+                        .then(() => res.status(200).json({
+                            message: 'le client a pas aimé !'
+                        }))
+                        .catch((error) => res.status(400).json({
+                            error
+                        }))
+
                     break;
 
-                case req.body.likes === 0 :
-                    Sauces.findOne({ _id: req.params.id })
-                    .then(sauce => {
-                        if (sauce.usersLiked.includes(req.body.userId)) {
+                case 0 :
+                    console.log("reset");
+                    Sauces.findOne({_id: req.params.id})
+                        .then(sauce => {
+                            if (sauce.usersLiked.includes(req.body.userId)) {
 
-                            like--;
-                        } else {
+                                like--;
+                            } else {
 
-                            dislikes--;
-                        }
-                    })
+                                dislikes--;
+                            }
+                        })
+                    break;
+                default :
+                    res.status(400).json({error : "evaluation like non gérée(-1,0 ou 1)"})
 
 
             }
         })
-        .catch(error => res.status(500).json({ error }))
+        .catch(error => res.status(500).json({error}))
 }
