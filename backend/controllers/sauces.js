@@ -90,6 +90,7 @@ let userId = req.body.userId;
 let sauceId = req.params.id;
 
 switch (like) {
+    //si l'utilisateur a aimé la sauce, on l'ajoute dans le tableau usersLiked
     case 1:
         Sauces.updateOne(
             { _id: sauceId },
@@ -99,7 +100,7 @@ switch (like) {
             .catch((error) => res.status(400).json({ error }));
 
         break;
-
+//si l'utilisateur annule son like ou son dislike, on l'enlève du tableau
     case 0:
         Sauces.findOne({ _id: sauceId })
             .then((sauce) => {
@@ -108,7 +109,7 @@ switch (like) {
                         { _id: sauceId },
                         { $pull: { usersLiked: userId }, $inc: { likes: -1 } }
                     )
-                        .then(() => res.status(200).json({ message: "neutre" }))
+                        .then(() => res.status(200).json({ message: "like annulé" }))
                         .catch((error) => res.status(400).json({ error }));
                 }
                 if (sauce.usersDisliked.includes(userId)) {
@@ -116,13 +117,14 @@ switch (like) {
                         { _id: sauceId },
                         { $pull: { usersDisliked: userId }, $inc: { dislikes: -1 } }
                     )
-                        .then(() => res.status(200).json({ message: "neutre" }))
+                        .then(() => res.status(200).json({ message: "dislike annulé" }))
                         .catch((error) => res.status(400).json({ error }));
                 }
             })
             .catch((error) => res.status(404).json({ error }));
         break;
 
+        //Si l'utilisateur n'aime pas la sauce, on ajoute au tableau user dislike
     case -1:
         Sauces.updateOne(
             { _id: sauceId },
